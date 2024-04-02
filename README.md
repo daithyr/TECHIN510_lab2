@@ -12,4 +12,6 @@ streamlit run app.py
 ```
 
 ## lessons learned
-## questions
+I had a deeper understanding of git and how to use Streamlit to visualize data. 
+
+
