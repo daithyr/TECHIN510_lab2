@@ -7,6 +7,8 @@ TECHIN510_lab2
 pythong -m venv venv
 source venv/bin/activate
 pip install -r requirement.txt
+
+streamlit run app.py
 ```
 
 ## lessons learned
