@@ -1,43 +1,38 @@
-# Import necessary libraries
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Title and introduction
-st.title('Data Analysis Web App')
-st.write('This web app is designed to read a dataset and display interesting data visualizations about the dataset.')
+# Load the dataset
+file_path = 'path/to/your/BostonHousing.csv'  # Update this to your actual file path
+df = pd.read_csv(file_path)
 
-# Read the dataset
-df = pd.read_csv('vent_data.csv')
+# App title and dataset overview
+st.title('Boston Housing Dataset Analysis')
+st.markdown('''
+This app provides analysis and visualization of the Boston Housing dataset.
+Explore the relationship between various factors and median home values in Boston.
+''')
 
-# Display the first few rows of the dataframe
-st.write(df.head())
+# Sidebar for filtering
+st.sidebar.header('Filter Options')
+lstat_max = df['lstat'].max()
+lstat_min = df['lstat'].min()
+lstat_value = st.sidebar.slider('Lower status of the population (%)', float(lstat_min), float(lstat_max), (lstat_min, lstat_max))
 
-# Widgets for data filtering
-# Slider example: Adjust the parameters according to your dataset
-slider_value = st.slider('Select a value', min_value=int(df['YourColumn'].min()), max_value=int(df['YourColumn'].max()), value=(int(df['YourColumn'].min()), int(df['YourColumn'].max())))
+# Filter data based on selection
+filtered_data = df[df['lstat'].between(*lstat_value)]
 
-# Dropdown example
-dropdown_selection = st.selectbox('Select an option', df['YourCategoryColumn'].unique())
+# Distribution of Median Home Values
+st.header('Distribution of Median Home Values')
+fig, ax = plt.subplots()
+sns.histplot(filtered_data['medv'], bins=20, kde=True, ax=ax)
+st.pyplot(fig)
 
-# Multi-select example
-select_values = st.multiselect('Select multiple options', df['AnotherCategoryColumn'].unique())
-
-# Filter the dataset based on the widget's selection
-filtered_df = df[(df['YourColumn'] >= slider_value[0]) & (df['YourColumn'] <= slider_value[1]) & (df['YourCategoryColumn'] == dropdown_selection) & (df['AnotherCategoryColumn'].isin(select_values))]
-
-# Display filtered data - you can comment this out in your final app
-st.write(filtered_df)
-
-# Data visualization example with Plotly
-fig = px.line(filtered_df, x="YourXColumn", y="YourYColumn", title="Line Chart Example")
-st.plotly_chart(fig)
-
-# Assuming your dataset includes latitude and longitude for a map visualization
-# You might need to filter or preprocess your dataset to include only the necessary rows with valid latitude and longitude
-if 'latitude' in df.columns and 'longitude' in df.columns:
-    st.map(df[['latitude', 'longitude']])
-
-# Remember to replace 'YourColumn', 'YourCategoryColumn', 'AnotherCategoryColumn', 'YourXColumn', 'YourYColumn', 'latitude', and 'longitude' 
-# with actual column names from your dataset.
-
+# Scatter Plot of RM vs. MEDV
+st.header('Average Number of Rooms vs. Median Home Value')
+fig, ax = plt.subplots()
+sns.scatterplot(data=filtered_data, x='rm', y='medv', ax=ax)
+ax.set_xlabel('Average Number of Rooms per Dwelling (RM)')
+ax.set_ylabel('Median Value of Owner-Occupied Homes (MEDV)')
+st.pyplot(fig)
