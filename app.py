@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the dataset
-file_path = 'path/to/your/BostonHousing.csv'  # Update this to your actual file path
+file_path = 'BostonHousing.csv' 
 df = pd.read_csv(file_path)
 
 # App title and dataset overview
