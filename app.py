@@ -7,10 +7,8 @@ from sklearn.datasets import load_boston
 # Load Boston housing data
 @st.cache
 def load_data():
-    boston = load_boston()
-    data = pd.DataFrame(boston.data, columns=boston.feature_names)
-    data['MEDV'] = boston.target
-    return data
+    # Assuming a CSV file - adjust the path as needed
+    return pd.read_csv("BostonHousing.csv")
 
 df = load_data()
 
