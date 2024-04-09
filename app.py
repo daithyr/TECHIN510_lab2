@@ -35,20 +35,22 @@ df = load_data()
 # Sidebar for filtering
 st.sidebar.header('Filter Options')
 
-# Slider for number of rooms (rm)
-min_rooms, max_rooms = float(df['rm'].min()), float(df['rm'].max())
-rooms = st.sidebar.slider('Number of Rooms (rm)', min_rooms, max_rooms, (min_rooms, max_rooms))
+# Slider for the number of rooms (rm)
+rooms = st.sidebar.slider('Number of Rooms (rm)', float(df['rm'].min()), float(df['rm'].max()), (float(df['rm'].min()), float(df['rm'].max())))
 
 # Dropdown for CHAS (Charles River dummy variable)
-chas_options = [0, 1]  # Assuming chas column is either 0 or 1
-chas = st.sidebar.selectbox('Proximity to Charles River (chas)', options=chas_options)
+chas = st.sidebar.selectbox('Proximity to Charles River (chas)', options=df['chas'].unique())
 
-# Multiselect for property tax rate (tax)
-unique_tax_rates = sorted(df['tax'].unique().tolist())
-selected_tax_rates = st.sidebar.multiselect('Property Tax Rate (tax)', options=unique_tax_rates, default=unique_tax_rates)
+# Multiselect for RAD (index of accessibility to radial highways)
+selected_rad = st.sidebar.multiselect('Accessibility to Radial Highways (rad)', options=df['rad'].unique(), default=df['rad'].unique())
 
-# Filter data based on selections
-filtered_df = df[(df['rm'] >= rooms[0]) & (df['rm'] <= rooms[1]) & (df['chas'] == chas) & (df['tax'].isin(selected_tax_rates))]
+# Filtering the dataframe
+filtered_df = df[(df['rm'] >= rooms[0]) & (df['rm'] <= rooms[1]) & (df['chas'] == chas) & (df['rad'].isin(selected_rad))]
+
+# Displaying the filtered dataframe
+st.header('Filtered Data')
+st.write(filtered_df)
+
 
 # Main panel with columns for layout
 col1, col2 = st.columns(2)
