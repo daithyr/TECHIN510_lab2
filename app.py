@@ -1,38 +1,59 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_boston
 
-# Load the dataset
-file_path = 'BostonHousing.csv' 
-df = pd.read_csv(file_path)
+# Load Boston housing data
+@st.cache
+def load_data():
+    boston = load_boston()
+    data = pd.DataFrame(boston.data, columns=boston.feature_names)
+    data['MEDV'] = boston.target
+    return data
 
-# App title and dataset overview
-st.title('Boston Housing Dataset Analysis')
-st.markdown('''
-This app provides analysis and visualization of the Boston Housing dataset.
-Explore the relationship between various factors and median home values in Boston.
-''')
+df = load_data()
 
 # Sidebar for filtering
 st.sidebar.header('Filter Options')
-lstat_max = df['lstat'].max()
-lstat_min = df['lstat'].min()
-lstat_value = st.sidebar.slider('Lower status of the population (%)', float(lstat_min), float(lstat_max), (lstat_min, lstat_max))
 
-# Filter data based on selection
-filtered_data = df[df['lstat'].between(*lstat_value)]
+# Slider for number of rooms
+rooms = st.sidebar.slider('Number of Rooms (RM)', float(df['RM'].min()), float(df['RM'].max()), (float(df['RM'].min()), float(df['RM'].max())))
 
-# Distribution of Median Home Values
-st.header('Distribution of Median Home Values')
-fig, ax = plt.subplots()
-sns.histplot(filtered_data['medv'], bins=20, kde=True, ax=ax)
-st.pyplot(fig)
+# Filtering data based on selection
+filtered_df = df[(df['RM'] >= rooms[0]) & (df['RM'] <= rooms[1])]
 
-# Scatter Plot of RM vs. MEDV
-st.header('Average Number of Rooms vs. Median Home Value')
-fig, ax = plt.subplots()
-sns.scatterplot(data=filtered_data, x='rm', y='medv', ax=ax)
-ax.set_xlabel('Average Number of Rooms per Dwelling (RM)')
-ax.set_ylabel('Median Value of Owner-Occupied Homes (MEDV)')
-st.pyplot(fig)
+# Main panel
+
+# Use columns for layout
+col1, col2 = st.columns(2)
+
+with col1:
+    st.header("Distribution of Property Prices")
+    fig, ax = plt.subplots()
+    sns.histplot(filtered_df['MEDV'], bins=30, kde=True, ax=ax)
+    st.pyplot(fig)
+
+with col2:
+    st.header("Correlation Heatmap")
+    # Compute correlation matrix
+    corr = filtered_df.corr()
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(corr, dtype=bool))
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(11, 9))
+    # Generate a custom diverging colormap
+    cmap = sns.diverging_palette(230, 20, as_cmap=True)
+    # Draw the heatmap with the mask and correct aspect ratio
+    sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+                square=True, linewidths=.5, cbar_kws={"shrink": .5})
+    st.pyplot(f)
+
+# Assuming augmented data with 'LAT' and 'LON' for map visualization
+# If you don't have this data, comment out this section
+if 'LAT' in df.columns and 'LON' in df.columns:
+    st.header("Map of Properties")
+    st.map(filtered_df[['LAT', 'LON']])
+
+# This is a placeholder. If you don't have latitude and longitude data,
+# you might not be able to use this part directly.
