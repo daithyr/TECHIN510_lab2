@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # Title and Overview
 st.title('Boston Housing Dataset Analysis')
 st.markdown("""
-This app explores the Boston Housing dataset, providing insights into the housing values in suburbs of Boston, along with various features influencing the housing prices. Below is a brief overview of the dataset columns:
+This webpage explores the Boston Housing dataset, providing insights into the housing values in suburbs of Boston, along with various features influencing the housing prices. Below is a brief overview of the dataset columns:
 
 - `crim`: Per capita crime rate by town.
 - `zn`: Proportion of residential land zoned for lots over 25,000 sq.ft.
