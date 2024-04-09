@@ -3,55 +3,43 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
-# Load Boston housing data
+# Function to load the dataset
 @st.cache
 def load_data():
-    # Assuming a CSV file - adjust the path as needed
-    return pd.read_csv("BostonHousing.csv")
+    data = pd.read_csv('BostonHousing.csv')
+    return data
 
 df = load_data()
 
 # Sidebar for filtering
 st.sidebar.header('Filter Options')
 
-# Slider for number of rooms
-rooms = st.sidebar.slider('Number of Rooms (RM)', float(df['RM'].min()), float(df['RM'].max()), (float(df['RM'].min()), float(df['RM'].max())))
+# Slider for number of rooms (RM)
+min_rooms, max_rooms = int(df['RM'].min()), int(df['RM'].max())
+rooms = st.sidebar.slider('Number of Rooms (RM)', min_rooms, max_rooms, (min_rooms, max_rooms))
 
-# Filtering data based on selection
-filtered_df = df[(df['RM'] >= rooms[0]) & (df['RM'] <= rooms[1])]
+# Dropdown for CHAS (Charles River dummy variable)
+chas_options = df['CHAS'].unique().tolist()
+chas = st.sidebar.selectbox('Proximity to Charles River (CHAS)', chas_options)
 
-# Main panel
+# Filter data based on selections
+filtered_df = df[(df['RM'] >= rooms[0]) & (df['RM'] <= rooms[1]) & (df['CHAS'] == chas)]
 
-# Use columns for layout
+# Main panel with columns for layout
 col1, col2 = st.columns(2)
 
 with col1:
-    st.header("Distribution of Property Prices")
+    st.header("Price Distribution")
     fig, ax = plt.subplots()
-    sns.histplot(filtered_df['MEDV'], bins=30, kde=True, ax=ax)
+    sns.histplot(filtered_df['MEDV'], bins=20, kde=True, ax=ax)
     st.pyplot(fig)
 
 with col2:
-    st.header("Correlation Heatmap")
-    # Compute correlation matrix
-    corr = filtered_df.corr()
-    # Generate a mask for the upper triangle
-    mask = np.triu(np.ones_like(corr, dtype=bool))
-    # Set up the matplotlib figure
-    f, ax = plt.subplots(figsize=(11, 9))
-    # Generate a custom diverging colormap
-    cmap = sns.diverging_palette(230, 20, as_cmap=True)
-    # Draw the heatmap with the mask and correct aspect ratio
-    sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
-                square=True, linewidths=.5, cbar_kws={"shrink": .5})
-    st.pyplot(f)
+    st.header("Rooms vs. Price")
+    fig, ax = plt.subplots()
+    sns.scatterplot(x='RM', y='MEDV', data=filtered_df, ax=ax)
+    ax.set_xlabel('Number of Rooms')
+    ax.set_ylabel('Median Value ($1000s)')
+    st.pyplot(fig)
 
-# Assuming augmented data with 'LAT' and 'LON' for map visualization
-# If you don't have this data, comment out this section
-if 'LAT' in df.columns and 'LON' in df.columns:
-    st.header("Map of Properties")
-    st.map(filtered_df[['LAT', 'LON']])
-
-# This is a placeholder. If you don't have latitude and longitude data,
-# you might not be able to use this part directly.
+# Assuming you might want to add more visualization or interactive elements below
